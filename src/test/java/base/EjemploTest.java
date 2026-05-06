@@ -1,4 +1,4 @@
-package com.saucelabs.tests;
+package base;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
@@ -19,7 +19,7 @@ public class EjemploTest extends BaseTest {
         assertNotNull(driver, "El driver de Appium no se inició correctamente.");
 
         // Imprimimos el nombre del paquete actual para confirmar que estamos en la app correcta
-        String appPackage = (String) driver.getCapabilities().getCapability("appPackage");
+        String appPackage = driver.getCapabilities().getCapability("Appium:appPackage").toString();
         System.out.println(">>> Estamos dentro de la aplicación: " + appPackage);
     }
 }
