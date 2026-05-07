@@ -1,39 +1,23 @@
+# --- Directorios de Construcción (Obligatorio ignorar) ---
 target/
-!.mvn/wrapper/maven-wrapper.jar
-!**/src/main/**/target/
-!**/src/test/**/target/
-.kotlin
+allure-results/
+allure-report/
+out/
 
-### IntelliJ IDEA ###
-.idea/modules.xml
-.idea/jarRepositories.xml
-.idea/compiler.xml
-.idea/libraries/
-*.iws
+# --- Maven Wrapper (Archivos que SÍ queremos en GitHub) ---
+# Primero ignoramos la carpeta .mvn para estar seguros
+.mvn/
+# Pero obligamos a Git a que SÍ incluya el jar y las propiedades
+!.mvn/wrapper/maven-wrapper.jar
+!.mvn/wrapper/maven-wrapper.properties
+
+# --- IntelliJ IDEA ---
+# Ignoramos la carpeta completa, es mucho más limpio
+.idea/
 *.iml
+*.iws
 *.ipr
 
-### Eclipse ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
-
-### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
-build/
-!**/src/main/**/build/
-!**/src/test/**/build/
-
-### VS Code ###
-.vscode/
-
-### Mac OS ###
+# --- Sistema ---
+*.log
 .DS_Store
