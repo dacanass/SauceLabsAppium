@@ -6,16 +6,19 @@ import org.openqa.selenium.interactions.PointerInput;
 import org.openqa.selenium.interactions.Sequence;
 
 import java.time.Duration;
+import java.util.Arrays;
 import java.util.Collections;
 
 public class GesturesUtils {
     private final AndroidDriver driver;
-    private final PointerInput finger;
+    private final PointerInput finger1;
+    private final PointerInput finger2;
 
     // El constructor recibe el driver activo de las pruebas
     public  GesturesUtils(AndroidDriver driver){
         this.driver = driver;
-        this.finger = new PointerInput(PointerInput.Kind.TOUCH, "finger");
+        this.finger1 = new PointerInput(PointerInput.Kind.TOUCH, "finger1");
+        this.finger2 = new PointerInput(PointerInput.Kind.TOUCH, "finger2");
     }
 
     /**
@@ -37,14 +40,14 @@ public class GesturesUtils {
         int endY = (int) (size.height * endYPrc);
 
         // 3. Configuramos la secuencia W3C con los puntos calculados
-        Sequence swipeSequence = new Sequence(finger, 1);
+        Sequence swipeSequence = new Sequence(finger1, 1);
 
-        swipeSequence.addAction(finger.createPointerMove(Duration.ZERO, PointerInput.Origin.viewport(), startX, startY));
-        swipeSequence.addAction(finger.createPointerDown(PointerInput.MouseButton.LEFT.asArg()));
+        swipeSequence.addAction(finger1.createPointerMove(Duration.ZERO, PointerInput.Origin.viewport(), startX, startY));
+        swipeSequence.addAction(finger1.createPointerDown(PointerInput.MouseButton.LEFT.asArg()));
 
         // Usamos una duración controlada para que el sistema operativo registre el arrastre
-        swipeSequence.addAction(finger.createPointerMove(Duration.ofMillis(600), PointerInput.Origin.viewport(), endX, endY));
-        swipeSequence.addAction(finger.createPointerUp(PointerInput.MouseButton.LEFT.asArg()));
+        swipeSequence.addAction(finger1.createPointerMove(Duration.ofMillis(600), PointerInput.Origin.viewport(), endX, endY));
+        swipeSequence.addAction(finger1.createPointerUp(PointerInput.MouseButton.LEFT.asArg()));
 
         driver.perform(Collections.singletonList(swipeSequence));
 
@@ -79,13 +82,70 @@ public class GesturesUtils {
      */
     public void longPress(int x, int y) {
         // 4. Reutilizamos el mismo 'finger' global aquí también
-        Sequence longPressSequence = new Sequence(finger, 1);
+        Sequence longPressSequence = new Sequence(finger1, 1);
 
-        longPressSequence.addAction(finger.createPointerMove(Duration.ZERO, PointerInput.Origin.viewport(), x, y));
-        longPressSequence.addAction(finger.createPointerDown(PointerInput.MouseButton.LEFT.asArg()));
-        longPressSequence.addAction(finger.createPointerMove(Duration.ofMillis(1500), PointerInput.Origin.viewport(), x, y));
-        longPressSequence.addAction(finger.createPointerUp(PointerInput.MouseButton.LEFT.asArg()));
+        longPressSequence.addAction(finger1.createPointerMove(Duration.ZERO, PointerInput.Origin.viewport(), x, y));
+        longPressSequence.addAction(finger1.createPointerDown(PointerInput.MouseButton.LEFT.asArg()));
+        longPressSequence.addAction(finger1.createPointerMove(Duration.ofMillis(1500), PointerInput.Origin.viewport(), x, y));
+        longPressSequence.addAction(finger1.createPointerUp(PointerInput.MouseButton.LEFT.asArg()));
 
         driver.perform(Collections.singletonList(longPressSequence));
     }
+
+    /**
+     * Gesto de Zoom universal (Multi-touch) basado en porcentajes de la pantalla.
+     *
+     * @param startDistancePrc Distancia inicial entre los dedos (porcentaje del alto/ancho).
+     * @param endDistancePrc   Distancia final entre los dedos al terminar el gesto.
+     */
+    public void zoom(double startDistancePrc, double endDistancePrc) {
+        Dimension size = driver.manage().window().getSize();
+
+        // Encontramos el centro de la pantalla, que será nuestro eje de rotación/zoom
+        int centerX = size.width / 2;
+        int centerY = size.height / 2;
+
+        // Determinamos los puntos de inicio y fin para el Dedo 1 y Dedo 2 en base a los porcentajes
+        int startYF1 = (int) (centerY - (size.height * (startDistancePrc / 2)));
+        int endYF1 = (int) (centerY - (size.height * (endDistancePrc / 2)));
+
+        int startYF2 = (int) (centerY + (size.height * (startDistancePrc / 2)));
+        int endYF2 = (int) (centerY + (size.height * (endDistancePrc / 2)));
+
+        // 3. Creamos las dos secuencias independientes (una para cada dedo)
+        Sequence sequenceF1 = new Sequence(finger1, 1);
+        Sequence sequenceF2 = new Sequence(finger2, 2);
+
+        // CONFIGURACIÓN DEDO 1 (Se mueve en la mitad superior)
+        sequenceF1.addAction(finger1.createPointerMove(Duration.ZERO, PointerInput.Origin.viewport(), centerX, startYF1));
+        sequenceF1.addAction(finger1.createPointerDown(PointerInput.MouseButton.LEFT.asArg()));
+        sequenceF1.addAction(finger1.createPointerMove(Duration.ofMillis(800), PointerInput.Origin.viewport(), centerX, endYF1));
+        sequenceF1.addAction(finger1.createPointerUp(PointerInput.MouseButton.LEFT.asArg()));
+
+        // CONFIGURACIÓN DEDO 2 (Se mueve en la mitad inferior de forma simétrica u opuesta)
+        sequenceF2.addAction(finger2.createPointerMove(Duration.ZERO, PointerInput.Origin.viewport(), centerX, startYF2));
+        sequenceF2.addAction(finger2.createPointerDown(PointerInput.MouseButton.LEFT.asArg()));
+        sequenceF2.addAction(finger2.createPointerMove(Duration.ofMillis(800), PointerInput.Origin.viewport(), centerX, endYF2));
+        sequenceF2.addAction(finger2.createPointerUp(PointerInput.MouseButton.LEFT.asArg()));
+
+        // 4. ¡La magia de la W3C!: Enviamos AMBAS secuencias en una lista para ejecutarse EN SIMULTÁNEO
+        driver.perform(Arrays.asList(sequenceF1, sequenceF2));
+    }
+
+    /**
+     * Zoom In (Agrandar / Alejar dedos):
+     * Los dedos empiezan muy juntos (10% de distancia) y se separan (80% de distancia).
+     */
+    public void zoomIn() {
+        this.zoom(0.10, 0.80);
+    }
+
+    /**
+     * Zoom Out (Achicar / Pellizcar pantalla):
+     * Los dedos empiezan muy separados (80% de distancia) y se juntan (10% de distancia).
+     */
+    public void zoomOut() {
+        this.zoom(0.80, 0.10);
+    }
+
 }
