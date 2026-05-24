@@ -1,4 +1,4 @@
-package base;
+package tests;
 
 import driver.DriverProvider;
 import io.appium.java_client.android.AndroidDriver;
@@ -15,13 +15,13 @@ public class BaseTest {
 
     @BeforeEach
     public void setUp() {
-        // DriverProvider se encarga de toda la configuración pesada
+        // Inicializar el driver. DriverProvider se encarga de toda la configuración pesada
         this.driver = DriverProvider.getDriver();
     }
 
     @AfterEach
     public void tearDown() {
-        // Cerramos la sesión a través del proveedor
+        // Cerrar driver. Cerramos la sesión a través del proveedor
         DriverProvider.quitDriver();
     }
 }
