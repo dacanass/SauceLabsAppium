@@ -2,6 +2,7 @@ package utilities;
 
 import io.appium.java_client.android.AndroidDriver;
 import org.openqa.selenium.Dimension;
+import org.openqa.selenium.interactions.Pause;
 import org.openqa.selenium.interactions.PointerInput;
 import org.openqa.selenium.interactions.Sequence;
 
@@ -9,16 +10,35 @@ import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
 
-public class GesturesUtils {
+public class Gestures {
     private final AndroidDriver driver;
     private final PointerInput finger1;
     private final PointerInput finger2;
 
     // El constructor recibe el driver activo de las pruebas
-    public  GesturesUtils(AndroidDriver driver){
+    public Gestures(AndroidDriver driver){
         this.driver = driver;
         this.finger1 = new PointerInput(PointerInput.Kind.TOUCH, "finger1");
         this.finger2 = new PointerInput(PointerInput.Kind.TOUCH, "finger2");
+    }
+
+    /**
+     * Realiza un toque rápido (Tap) en coordenadas específicas.
+     * Útil para elementos no mapeados, Canvas, o cuando .click() falla.
+     */
+    public void tap(int x, int y) {
+        Sequence tapSequence = new Sequence(finger1, 1);
+
+        // 1. Mover al punto en 0 milisegundos
+        tapSequence.addAction(finger1.createPointerMove(Duration.ZERO, PointerInput.Origin.viewport(), x, y));
+        // 2. Presionar
+        tapSequence.addAction(finger1.createPointerDown(PointerInput.MouseButton.LEFT.asArg()));
+        // 3. Una mini pausa para que el sistema operativo registre el toque físico (importante)
+        tapSequence.addAction(new Pause(finger1, Duration.ofMillis(50)));
+        // 4. Levantar el dedo
+        tapSequence.addAction(finger1.createPointerUp(PointerInput.MouseButton.LEFT.asArg()));
+
+        driver.perform(Collections.singletonList(tapSequence));
     }
 
     /**
@@ -49,6 +69,7 @@ public class GesturesUtils {
         swipeSequence.addAction(finger1.createPointerMove(Duration.ofMillis(600), PointerInput.Origin.viewport(), endX, endY));
         swipeSequence.addAction(finger1.createPointerUp(PointerInput.MouseButton.LEFT.asArg()));
 
+        //Empaquetado en una lista (en este caso singletonList) y ejecucion de la sequence mediante .perform()
         driver.perform(Collections.singletonList(swipeSequence));
 
         /*
