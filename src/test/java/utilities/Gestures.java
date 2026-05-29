@@ -2,6 +2,8 @@ package utilities;
 
 import io.appium.java_client.android.AndroidDriver;
 import org.openqa.selenium.Dimension;
+import org.openqa.selenium.Point;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Pause;
 import org.openqa.selenium.interactions.PointerInput;
 import org.openqa.selenium.interactions.Sequence;
@@ -22,6 +24,13 @@ public class Gestures {
         this.finger2 = new PointerInput(PointerInput.Kind.TOUCH, "finger2");
     }
 
+    public static Point getCenterPoint(WebElement element){
+        final var rect = element.getRect();
+        final var centroX = rect.getX() + (rect.getWidth() / 2);
+        final var centroY = rect.getY() + (rect.getHeight() / 2);
+        return new Point(centroX,centroY);
+    }
+
     /**
      * Realiza un toque rápido (Tap) en coordenadas específicas.
      * Útil para elementos no mapeados, Canvas, o cuando .click() falla.
@@ -39,6 +48,12 @@ public class Gestures {
         tapSequence.addAction(finger1.createPointerUp(PointerInput.MouseButton.LEFT.asArg()));
 
         driver.perform(Collections.singletonList(tapSequence));
+    }
+
+    public void tap(WebElement element) {
+        final var centerPoint = getCenterPoint(element);
+
+        this.tap(centerPoint.getX(), centerPoint.getY());
     }
 
     /**
