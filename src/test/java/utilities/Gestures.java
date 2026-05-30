@@ -3,6 +3,7 @@ package utilities;
 import io.appium.java_client.android.AndroidDriver;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.Point;
+import org.openqa.selenium.Rectangle;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Pause;
 import org.openqa.selenium.interactions.PointerInput;
@@ -52,8 +53,46 @@ public class Gestures {
 
     public void tap(WebElement element) {
         final var centerPoint = getCenterPoint(element);
-
         this.tap(centerPoint.getX(), centerPoint.getY());
+    }
+
+    public void doubleTap(int x, int y){
+        Sequence doubleTapSequence = new Sequence(finger1,1);
+
+        doubleTapSequence.addAction(finger1.createPointerMove(Duration.ZERO, PointerInput.Origin.viewport(), x, y));
+
+        for (int i = 0; i < 2 ; i++) {
+            doubleTapSequence.addAction(finger1.createPointerDown(PointerInput.MouseButton.LEFT.asArg()));
+            doubleTapSequence.addAction(new Pause(finger1, Duration.ofMillis(50)));
+            doubleTapSequence.addAction(finger1.createPointerUp(PointerInput.MouseButton.LEFT.asArg()));
+
+            if (i == 0) {
+                doubleTapSequence.addAction(new Pause(finger1, Duration.ofMillis(100)));
+            }
+        }
+
+        driver.perform(Collections.singletonList(doubleTapSequence));
+    }
+
+    public void doubleTap(WebElement element){
+        final var centerPoint = getCenterPoint(element);
+        this.doubleTap(centerPoint.getX(), centerPoint.getY());
+    }
+
+    public void longPress(int x, int y) {
+        Sequence longPressSequence = new Sequence(finger1, 1);
+
+        longPressSequence.addAction(finger1.createPointerMove(Duration.ZERO, PointerInput.Origin.viewport(), x, y));
+        longPressSequence.addAction(finger1.createPointerDown(PointerInput.MouseButton.LEFT.asArg()));
+        longPressSequence.addAction(new Pause(finger1, Duration.ofMillis(1500)));
+        longPressSequence.addAction(finger1.createPointerUp(PointerInput.MouseButton.LEFT.asArg()));
+
+        driver.perform(Collections.singletonList(longPressSequence));
+    }
+
+    public void longPress(WebElement element){
+        final var centerPoint = getCenterPoint(element);
+        this.longPress(centerPoint.getX(), centerPoint.getY());
     }
 
     /**
@@ -79,6 +118,7 @@ public class Gestures {
 
         swipeSequence.addAction(finger1.createPointerMove(Duration.ZERO, PointerInput.Origin.viewport(), startX, startY));
         swipeSequence.addAction(finger1.createPointerDown(PointerInput.MouseButton.LEFT.asArg()));
+        swipeSequence.addAction(new Pause(finger1, Duration.ofMillis(100)));
 
         // Usamos una duración controlada para que el sistema operativo registre el arrastre
         swipeSequence.addAction(finger1.createPointerMove(Duration.ofMillis(600), PointerInput.Origin.viewport(), endX, endY));
@@ -112,25 +152,29 @@ public class Gestures {
     public void pasarCarruselDerecha() {
         this.swipe(0.9, 0.5, 0.1, 0.5);
     }
+    public void swipeInsideElement(WebElement element, double startXPrc, double startYPrc, double endXPrc, double endYPrc) {
+        // En lugar de tomar la pantalla completa, obtenemos los límites del elemento
+        Rectangle rect = element.getRect();
 
-    /**
-     * Realiza un toque prolongado (Long Press) sobre coordenadas específicas.
-     */
-    public void longPress(int x, int y) {
-        // 4. Reutilizamos el mismo 'finger' global aquí también
-        Sequence longPressSequence = new Sequence(finger1, 1);
+        // Calculamos las coordenadas basándonos estrictamente en el área del WebElement
+        int startX = (int) (rect.getX() + (rect.getWidth() * startXPrc));
+        int startY = (int) (rect.getY() + (rect.getHeight() * startYPrc));
+        int endX = (int) (rect.getX() + (rect.getWidth() * endXPrc));
+        int endY = (int) (rect.getY() + (rect.getHeight() * endYPrc));
 
-        longPressSequence.addAction(finger1.createPointerMove(Duration.ZERO, PointerInput.Origin.viewport(), x, y));
-        longPressSequence.addAction(finger1.createPointerDown(PointerInput.MouseButton.LEFT.asArg()));
-        longPressSequence.addAction(finger1.createPointerMove(Duration.ofMillis(1500), PointerInput.Origin.viewport(), x, y));
-        longPressSequence.addAction(finger1.createPointerUp(PointerInput.MouseButton.LEFT.asArg()));
+        Sequence swipeSequence = new Sequence(finger1, 1);
 
-        driver.perform(Collections.singletonList(longPressSequence));
+        swipeSequence.addAction(finger1.createPointerMove(Duration.ZERO, PointerInput.Origin.viewport(), startX, startY));
+        swipeSequence.addAction(finger1.createPointerDown(PointerInput.MouseButton.LEFT.asArg()));
+        swipeSequence.addAction(new Pause(finger1, Duration.ofMillis(100))); // Mantenemos la pausa de estabilidad
+        swipeSequence.addAction(finger1.createPointerMove(Duration.ofMillis(600), PointerInput.Origin.viewport(), endX, endY));
+        swipeSequence.addAction(finger1.createPointerUp(PointerInput.MouseButton.LEFT.asArg()));
+
+        driver.perform(Collections.singletonList(swipeSequence));
     }
 
     /**
      * Gesto de Zoom universal (Multi-touch) basado en porcentajes de la pantalla.
-     *
      * @param startDistancePrc Distancia inicial entre los dedos (porcentaje del alto/ancho).
      * @param endDistancePrc   Distancia final entre los dedos al terminar el gesto.
      */
@@ -182,6 +226,29 @@ public class Gestures {
      */
     public void zoomOut() {
         this.zoom(0.80, 0.10);
+    }
+
+    /**
+     * Realiza un arrastre y soltado (Drag and Drop) usando coordenadas puras.
+     */
+    public void dragAndDrop(int startX, int startY, int endX, int endY) {
+        Sequence dragSequence = new Sequence(finger1, 1);
+
+        dragSequence.addAction(finger1.createPointerMove(Duration.ZERO, PointerInput.Origin.viewport(), startX, startY));
+        dragSequence.addAction(finger1.createPointerDown(PointerInput.MouseButton.LEFT.asArg()));
+        // Pausa de 300ms con el dedo abajo para "sostener" el objeto antes de arrastrar
+        dragSequence.addAction(new Pause(finger1, Duration.ofMillis(300)));
+        dragSequence.addAction(finger1.createPointerMove(Duration.ofMillis(1000), PointerInput.Origin.viewport(), endX, endY));
+        dragSequence.addAction(new Pause(finger1, Duration.ofMillis(200)));
+        dragSequence.addAction(finger1.createPointerUp(PointerInput.MouseButton.LEFT.asArg()));
+
+        driver.perform(Collections.singletonList(dragSequence));
+    }
+    public void dragAndDrop(WebElement source, WebElement target) {
+        final var sourceCenter = getCenterPoint(source);
+        final var targetCenter = getCenterPoint(target);
+
+        this.dragAndDrop(sourceCenter.getX(), sourceCenter.getY(), targetCenter.getX(), targetCenter.getY());
     }
 
 }
