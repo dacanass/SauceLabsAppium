@@ -7,7 +7,7 @@ public class LoginTest extends BaseTest {
     @Test
     public void successfullLoginVerification(){
         loginPage().openLoginPage();
-        loginPage().loginSucces("bod@example.com","10203040");
+        loginPage().loginSuccess("bod@example.com","10203040");
         Assertions.assertTrue(catalogPage().isTitleDisplayed());
     }
 }
