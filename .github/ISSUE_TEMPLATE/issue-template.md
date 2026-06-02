@@ -1,3 +1,8 @@
+---
+name: 🚀 Test Automation Task
+about: Use this template for planning new test coverage.
+---
+
 ## Descripción
 Automatizar la verificación del inicio de sesión utilizando credenciales válidas en la aplicación nativa de Android de Sauce Labs.
 
