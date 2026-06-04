@@ -13,6 +13,7 @@ public class LoginPage extends BasePage{
     private final By passwordField = AppiumBy.id("com.saucelabs.mydemoapp.android:id/passwordET");
     private final By loginButton = AppiumBy.accessibilityId("Tap to login with given credentials");
     private final By locketOutError = AppiumBy.id("com.saucelabs.mydemoapp.android:id/passwordErrorTV");
+    private final By EmptyUsernameError = AppiumBy.id("com.saucelabs.mydemoapp.android:id/nameErrorTV");
 
     //constructor
     public LoginPage(AndroidDriver driver){
@@ -39,6 +40,14 @@ public class LoginPage extends BasePage{
 
         } catch (Exception e) {
             // Si pasa el tiempo y no aparece (ej. credenciales incorrectas), devolvemos false
+            return false;
+        }
+    }
+
+    public boolean isUsernameRequiredErrorDisplayed(){
+        try {
+            return waitForDisplayed(EmptyUsernameError).isDisplayed();
+        } catch (Exception e){
             return false;
         }
     }

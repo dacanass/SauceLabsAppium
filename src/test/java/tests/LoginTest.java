@@ -22,4 +22,13 @@ public class LoginTest extends BaseTest {
         loginPage().loginSuccess("alice@example.com","10203040");
         Assertions.assertTrue(loginPage().isLocketOutErrorDisplayed());
     }
+
+    @Test
+    @DisplayName("MDA-19: Verificar mensaje de error cuando no se proporciona el usuario")
+    public void emptyUsernameError(){
+        loginPage().openLoginPage();
+        loginPage().loginSuccess("","10203040");
+        Assertions.assertTrue(loginPage().isUsernameRequiredErrorDisplayed());
+    }
+
 }
