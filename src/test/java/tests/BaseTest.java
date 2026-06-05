@@ -7,6 +7,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import pages.CataloguePage;
 import pages.LoginPage;
+import pages.SideMenuPage;
 import utilities.TestListener;
 
 @ExtendWith(TestListener.class) // <--- Aquí conectamos el Listener
@@ -26,6 +27,9 @@ public class BaseTest {
     }
     protected CataloguePage catalogPage() {
         return new CataloguePage(driver);
+    }
+    protected SideMenuPage sideMenu() {
+        return new SideMenuPage(driver);
     }
 
     @AfterEach

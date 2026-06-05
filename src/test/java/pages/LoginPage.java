@@ -3,7 +3,6 @@ package pages;
 import io.appium.java_client.AppiumBy;
 import io.appium.java_client.android.AndroidDriver;
 import org.openqa.selenium.By;
-import org.openqa.selenium.support.ui.ExpectedConditions;
 
 public class LoginPage extends BasePage{
     //selectores
@@ -13,7 +12,8 @@ public class LoginPage extends BasePage{
     private final By passwordField = AppiumBy.id("com.saucelabs.mydemoapp.android:id/passwordET");
     private final By loginButton = AppiumBy.accessibilityId("Tap to login with given credentials");
     private final By locketOutError = AppiumBy.id("com.saucelabs.mydemoapp.android:id/passwordErrorTV");
-    private final By EmptyUsernameError = AppiumBy.id("com.saucelabs.mydemoapp.android:id/nameErrorTV");
+    private final By emptyUsernameError = AppiumBy.id("com.saucelabs.mydemoapp.android:id/nameErrorTV");
+    private final By emptyPasswordError = AppiumBy.id("com.saucelabs.mydemoapp.android:id/passwordErrorTV");
 
     //constructor
     public LoginPage(AndroidDriver driver){
@@ -22,10 +22,6 @@ public class LoginPage extends BasePage{
 
     //Métodos
     //flujo: Selector Privado ➡️ Método de Página que expone el estado como boolean o String ➡️ Aserción en el Test
-    public void openLoginPage(){
-        gestures.tap(waitForDisplayed(menuButton));
-        gestures.tap(waitForDisplayed(menuLoginOption));
-    }
 
     public void loginSuccess(String usuario, String password){
         waitForDisplayed(usernameField).sendKeys(usuario);
@@ -46,10 +42,17 @@ public class LoginPage extends BasePage{
 
     public boolean isUsernameRequiredErrorDisplayed(){
         try {
-            return waitForDisplayed(EmptyUsernameError).isDisplayed();
+            return waitForDisplayed(emptyUsernameError).isDisplayed();
         } catch (Exception e){
             return false;
         }
     }
 
+    public boolean isPasswordRequiredErrorDisplayed(){
+        try{
+            return waitForDisplayed(emptyPasswordError).isDisplayed();
+        }catch (Exception e){
+            return false;
+        }
+    }
 }
